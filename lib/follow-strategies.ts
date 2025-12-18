@@ -114,9 +114,10 @@ export function followMessagesAtBottom<M extends IdentifiableMessage>(
  *   messages={messages}
  *   renderMessage={renderMessage}
  *   onNewerMessages={followMessagesBy(
- *     (message => message.type === 'mention'
+ *     message => message.type === 'mention'
  *   )}
  * />
+ * ```
  *
  * @param shouldFollow - A function that determines if any of the received messages should trigger a scroll action.
  * @param opts - {@link ScrollToItemOpts} options for controlling the scroll behavior
@@ -128,7 +129,7 @@ export function followMessagesBy<M extends IdentifiableMessage>(
 ): OnMessagesCallback<M> {
   return (chat, newMessages) => {
     if (newMessages.some(shouldFollow)) {
-      return requestAnimationFrame(() => chat.scrollToBottom(opts));
+      return stabilizeAtBottom(chat, opts);
     }
     return followMessagesAtBottom<M>(opts)(chat, newMessages);
   };
@@ -140,8 +141,6 @@ export function followMessagesBy<M extends IdentifiableMessage>(
  *
  * @param opts - {@link ScrollToItemOpts} options for controlling the scroll behavior
  * @returns {OnAffixCallback<M>} A callback that performs the scroll action when the suffix is visible.
- *
- *
  */
 export function followSuffixAtBottom<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
