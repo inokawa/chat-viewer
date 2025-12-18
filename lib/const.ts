@@ -2,7 +2,7 @@
  * An index constant that indicates a not found state.
  * @internal
  */
-export const IDX_NOT_FOUND = -1 as const; 
+export const IDX_NOT_FOUND = -1 as const;
 /**
  * A prefix ID used in the chat viewer.
  * @internal

@@ -61,12 +61,13 @@ export function stabilizeAtBottom<M extends IdentifiableMessage>(
     const viewportSize = chat.viewportSize ?? 0;
     const scrollOffset = chat.scrollOffset ?? 0;
 
-    const isInitialized = currentScrollSize > 0 && viewportSize > 0;
+    const atBottom = isAtBottom(scrollOffset, currentScrollSize, viewportSize);
+    const hasViewport = currentScrollSize > 0 && viewportSize > 0;
+    const atBottomAndHasViewport = atBottom && hasViewport;
     const contentStable = currentScrollSize === prevScrollSize;
-    const atBottom = isInitialized && isAtBottom(scrollOffset, currentScrollSize, viewportSize);
 
     // Scroll if not at bottom or content changed
-    if (!atBottom || !contentStable) {
+    if (!atBottomAndHasViewport || !contentStable) {
       chat.scrollToBottom(opts);
     }
 
@@ -74,7 +75,7 @@ export function stabilizeAtBottom<M extends IdentifiableMessage>(
     // 1. Not yet initialized (VList not ready)
     // 2. Content changed (async rendering)
     // 3. Not at bottom yet
-    const needsMoreIterations = !isInitialized || !contentStable || !atBottom;
+    const needsMoreIterations = !hasViewport || !contentStable || !atBottom;
 
     if (needsMoreIterations && iterations < MAX_SCROLL_ITERATIONS) {
       prevScrollSize = currentScrollSize;

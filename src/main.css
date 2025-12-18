@@ -4,7 +4,9 @@
   font-weight: 400;
 }
 
-html, body, body > div {
+html,
+body,
+body > div {
   height: 100%;
   padding: 0;
   margin: 0;

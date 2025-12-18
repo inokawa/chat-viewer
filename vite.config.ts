@@ -1,10 +1,10 @@
 // https://vitejs.dev/config/
 /// <reference types="vite/client" />
 
-import { defineConfig, UserConfig } from 'vite'
-import react from '@vitejs/plugin-react'
-import dts from 'vite-plugin-dts'
-import { resolve } from 'path'
+import { defineConfig, UserConfig } from 'vite';
+import react from '@vitejs/plugin-react';
+import dts from 'vite-plugin-dts';
+import { resolve } from 'path';
 
 export default defineConfig(({ mode, command }) => {
   const isDev = command === 'serve';
@@ -28,7 +28,7 @@ export default defineConfig(({ mode, command }) => {
         external: ['react', 'react/jsx-runtime', 'react-dom'],
         output: {
           globals: {
-            react: 'React',
+            'react': 'React',
             'react/jsx-runtime': 'jsxRuntime',
             'react-dom': 'ReactDOM',
           },
@@ -39,9 +39,7 @@ export default defineConfig(({ mode, command }) => {
 
   const demo: UserConfig = {
     base: isDev ? '/demo' : '/chat-viewer/demo',
-    plugins: [
-      react(),
-    ],
+    plugins: [react()],
     build: {
       outDir: 'website/demo',
     },
@@ -52,4 +50,4 @@ export default defineConfig(({ mode, command }) => {
   }
 
   return lib;
-})
+});

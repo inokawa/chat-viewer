@@ -23,7 +23,7 @@ const DEFAULT_SCROLL_OPTS: ScrollToItemOpts = { align: 'end' };
 export function followAtBottom<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): ChatCallback<M> {
-  return (chat) => {
+  return chat => {
     if (chat.atBottom) {
       return requestAnimationFrame(() => chat.scrollToBottom(opts));
     }
@@ -44,7 +44,7 @@ export function followAtBottom<M extends IdentifiableMessage>(
 export function followAlways<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): ChatCallback<M> {
-  return (chat) => stabilizeAtBottom(chat, opts);
+  return chat => stabilizeAtBottom(chat, opts);
 }
 
 /**
@@ -70,7 +70,7 @@ export function followAlways<M extends IdentifiableMessage>(
 export function followEveryMessage<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): OnMessagesCallback<M> {
-  return (chat) => stabilizeAtBottom(chat, opts);
+  return chat => stabilizeAtBottom(chat, opts);
 }
 
 /**
@@ -92,9 +92,9 @@ export function followEveryMessage<M extends IdentifiableMessage>(
  * @returns {OnMessagesCallback<M>} A callback that performs the scroll action.
  */
 export function followMessagesAtBottom<M extends IdentifiableMessage>(
-  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
+  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): OnMessagesCallback<M> {
-  return (chat) => {
+  return chat => {
     if (chat.atBottom) {
       return requestAnimationFrame(() => chat.scrollToBottom(opts));
     }
@@ -125,7 +125,7 @@ export function followMessagesAtBottom<M extends IdentifiableMessage>(
  */
 export function followMessagesBy<M extends IdentifiableMessage>(
   shouldFollow: (message: M) => boolean,
-  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
+  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): OnMessagesCallback<M> {
   return (chat, newMessages) => {
     if (newMessages.some(shouldFollow)) {
@@ -143,7 +143,7 @@ export function followMessagesBy<M extends IdentifiableMessage>(
  * @returns {OnAffixCallback<M>} A callback that performs the scroll action when the suffix is visible.
  */
 export function followSuffixAtBottom<M extends IdentifiableMessage>(
-  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
+  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): OnAffixCallback<M> {
   return (chat, suffixVisible) => {
     if (suffixVisible && chat.atBottom) {

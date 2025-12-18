@@ -20,8 +20,8 @@ export function useCompareMessages<M extends IdentifiableMessage>(
 ): CompareResult<M> {
   const previousMessages = useRef<M[]>([]);
 
-  const oldIds = previousMessages.current.map((m) => m.id);
-  const newIds = messages.map((m) => m.id);
+  const oldIds = previousMessages.current.map(m => m.id);
+  const newIds = messages.map(m => m.id);
 
   // Update the previous messages reference
   // After this point we operate with ids of messages

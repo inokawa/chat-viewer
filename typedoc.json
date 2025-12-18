@@ -1,19 +1,17 @@
 {
   "$schema": "https://typedoc.org/schema.json",
   "name": "Chat Viewer",
-  "entryPoints": [
-    "./lib/index.ts"
-  ],
+  "entryPoints": ["./lib/index.ts"],
   "outputs": [
     {
       "name": "html",
-      "path": "./website",
+      "path": "./website"
     },
     {
       "name": "markdown",
       "path": "./docs",
       "options": {
-        "hideBreadcrumbs": true,
+        "hideBreadcrumbs": true
       }
     }
   ],

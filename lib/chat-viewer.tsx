@@ -16,11 +16,7 @@ import {
 import { type ScrollToIndexOpts, type VListHandle, VList } from 'virtua';
 
 import { useProps, useCompareMessages, useSeenIdsTracking } from './hooks';
-import {
-  IDX_NOT_FOUND,
-  PREFIX_ID,
-  SUFFIX_ID
-} from './const';
+import { IDX_NOT_FOUND, PREFIX_ID, SUFFIX_ID } from './const';
 import type {
   MessageId,
   ChatViewerHandle,
@@ -118,7 +114,7 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
     }
     if (keepMountedIds) {
       return keepMountedIds
-        .map((id) => idsToIndexes.get(id))
+        .map(id => idsToIndexes.get(id))
         .filter((index): index is number => index !== undefined);
     }
     return [];
@@ -374,7 +370,7 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
  *
  * @typeParam M - Type of messages, which must extend {@link IdentifiableMessage}. It can be any type that has an `id` property for unique identifying messages.
  * @param {object} props - {@link ChatViewerProps} properties for the component and `ref` that will expose {@link ChatViewerHandle}'s methods.
- * 
+ *
  * @inlineType ChatViewerPropsWithRef
  */
 export const ChatViewer = memo(forwardRef(ChatViewerWithRef)) as <
