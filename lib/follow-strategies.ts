@@ -15,7 +15,7 @@ const DEFAULT_SCROLL_OPTS: ScrollToItemOpts = { align: 'end' };
  * A helper function that creates a callback to scroll to the bottom of the chat viewer when the chat is at the bottom.
  * It can be used to scroll to the new messages or to the suffix when it is visible.
  * It returns a generic {@link ChatCallback} that can be used with the chat viewer.
- * 
+ *
  * @param opts - {@link ScrollToItemOpts} options for controlling the scroll behavior
  * @returns {ChatCallback<M>} A callback that performs the scroll action.
  */
@@ -33,19 +33,52 @@ export function followAtBottom<M extends IdentifiableMessage>(
  * A helper function that creates a callback to scroll to the bottom of the chat viewer.
  * It returns a generic {@link ChatCallback} that can be used with the chat viewer.
  *
+ * This function handles layout shifts that may occur after scrolling (e.g., when content
+ * like delimiters is rendered asynchronously). It monitors scrollSize changes and re-scrolls
+ * until the content stabilizes, ensuring the bottom remains visible.
+ *
  * @param opts - {@link ScrollToItemOpts} options for controlling the scroll behavior
  * @returns {ChatCallback<M>} A callback that performs the scroll action.
  */
 export function followAlways<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): ChatCallback<M> {
-  return (chat) => requestAnimationFrame(() => chat.scrollToBottom(opts));
+  return (chat) => {
+    let prevScrollSize = chat.scrollSize ?? 0;
+    let iterations = 0;
+    // Max 10 frames (~166ms at 60fps) - enough for React to commit DOM changes
+    const maxIterations = 10;
+
+    const checkAndScroll = () => {
+      const currentScrollSize = chat.scrollSize ?? 0;
+
+      // Scroll to bottom
+      chat.scrollToBottom(opts);
+
+      const notInitialized = currentScrollSize === 0;
+      const scrollSizeChanged = currentScrollSize !== prevScrollSize;
+      const needsMoreScrolling =
+      notInitialized || scrollSizeChanged || !chat.atBottom;
+      
+      // Continue iterating if:
+      // 1. scrollSize is 0 (VList not yet initialized)
+      // 2. scrollSize changed (content was added)
+      // 3. not at bottom
+      if (needsMoreScrolling && iterations < maxIterations) {
+        prevScrollSize = currentScrollSize;
+        iterations++;
+        requestAnimationFrame(checkAndScroll);
+      }
+    };
+
+    requestAnimationFrame(checkAndScroll);
+  };
 }
 
 /**
  * Performs a scroll to the bottom of the chat viewer when a new message is added.
  * It returns a generic {@link OnMessagesCallback} that can be used with the chat viewer.
- * 
+ *
  * @example
  * ```tsx
  * <ChatViewer
@@ -71,7 +104,7 @@ export function followEveryMessage<M extends IdentifiableMessage>(
  * It returns a generic {@link OnMessagesCallback} that can be used with the chat viewer.
  * Typical behavior of the chat apps is to scroll to the bottom when a new message arrives, but only if the user is already at the bottom of the chat.
  * It will not scroll if the user has scrolled up to view older messages.
- * 
+ *
  * @example
  * ```tsx
  * <ChatViewer
@@ -85,7 +118,7 @@ export function followEveryMessage<M extends IdentifiableMessage>(
  * @returns {OnMessagesCallback<M>} A callback that performs the scroll action.
  */
 export function followMessagesAtBottom<M extends IdentifiableMessage>(
-  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
+  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
 ): OnMessagesCallback<M> {
   return (chat) => {
     if (chat.atBottom) {
@@ -100,7 +133,7 @@ export function followMessagesAtBottom<M extends IdentifiableMessage>(
  * Typical behavior of the chat apps is to scroll to the bottom when a new message arrives, but only if the user is already at the bottom of the chat.
  * When user scrolls up to view older messages, it will not scroll automatically.
  * When browsing messages history chat apps usually scroll to the bottom only when user sends a new message.
- * 
+ *
  * @example
  * ```tsx
  * <ChatViewer
@@ -117,7 +150,7 @@ export function followMessagesAtBottom<M extends IdentifiableMessage>(
  */
 export function followMessagesBy<M extends IdentifiableMessage>(
   shouldFollow: (message: M) => boolean,
-  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
+  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
 ): OnMessagesCallback<M> {
   return (chat, newMessages) => {
     if (newMessages.some(shouldFollow)) {
@@ -130,14 +163,14 @@ export function followMessagesBy<M extends IdentifiableMessage>(
 /**
  * This is typically used to scroll to the bottom of the chat when the suffix is visible.
  * For example, when suffix is a typing indicator and it appears when someone is typing a message.
- * 
+ *
  * @param opts - {@link ScrollToItemOpts} options for controlling the scroll behavior
  * @returns {OnAffixCallback<M>} A callback that performs the scroll action when the suffix is visible.
- * 
- * 
+ *
+ *
  */
 export function followSuffixAtBottom<M extends IdentifiableMessage>(
-  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
+  opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS
 ): OnAffixCallback<M> {
   return (chat, suffixVisible) => {
     if (suffixVisible && chat.atBottom) {
