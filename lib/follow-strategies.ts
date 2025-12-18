@@ -5,6 +5,7 @@ import type {
   OnAffixCallback,
   OnMessagesCallback,
 } from './types';
+import { stabilizeAtBottom } from './utils';
 
 /**
  * Options for scrolling to a specific index or message in the chat viewer.
@@ -43,41 +44,16 @@ export function followAtBottom<M extends IdentifiableMessage>(
 export function followAlways<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): ChatCallback<M> {
-  return (chat) => {
-    let prevScrollSize = chat.scrollSize ?? 0;
-    let iterations = 0;
-    // Max 10 frames (~166ms at 60fps) - enough for React to commit DOM changes
-    const maxIterations = 10;
-
-    const checkAndScroll = () => {
-      const currentScrollSize = chat.scrollSize ?? 0;
-
-      // Scroll to bottom
-      chat.scrollToBottom(opts);
-
-      const notInitialized = currentScrollSize === 0;
-      const scrollSizeChanged = currentScrollSize !== prevScrollSize;
-      const needsMoreScrolling =
-      notInitialized || scrollSizeChanged || !chat.atBottom;
-      
-      // Continue iterating if:
-      // 1. scrollSize is 0 (VList not yet initialized)
-      // 2. scrollSize changed (content was added)
-      // 3. not at bottom
-      if (needsMoreScrolling && iterations < maxIterations) {
-        prevScrollSize = currentScrollSize;
-        iterations++;
-        requestAnimationFrame(checkAndScroll);
-      }
-    };
-
-    requestAnimationFrame(checkAndScroll);
-  };
+  return (chat) => stabilizeAtBottom(chat, opts);
 }
 
 /**
  * Performs a scroll to the bottom of the chat viewer when a new message is added.
  * It returns a generic {@link OnMessagesCallback} that can be used with the chat viewer.
+ *
+ * This function handles layout shifts that may occur after scrolling (e.g., when content
+ * like delimiters is rendered asynchronously). It monitors scrollSize changes and re-scrolls
+ * until the content stabilizes, ensuring the bottom remains visible.
  *
  * @example
  * ```tsx
@@ -94,9 +70,7 @@ export function followAlways<M extends IdentifiableMessage>(
 export function followEveryMessage<M extends IdentifiableMessage>(
   opts: ScrollToItemOpts = DEFAULT_SCROLL_OPTS,
 ): OnMessagesCallback<M> {
-  return (chat) => {
-    return requestAnimationFrame(() => chat.scrollToBottom(opts));
-  };
+  return (chat) => stabilizeAtBottom(chat, opts);
 }
 
 /**
