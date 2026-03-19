@@ -13,7 +13,7 @@ import {
   useState,
 } from 'react';
 
-import { type ScrollToIndexOpts, type VListHandle, VList } from 'virtua';
+import { type ScrollToIndexOpts, type VListHandle, Virtualizer } from 'virtua';
 
 import { useProps, useCompareMessages, useSeenIdsTracking } from './hooks';
 import { IDX_NOT_FOUND, PREFIX_ID, SUFFIX_ID } from './const';
@@ -40,7 +40,7 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
     scrollerStyle,
     scrollerClassName,
     alignment,
-    overscan,
+    bufferSize,
     keepMountedIndexes,
     keepMountedIds,
     ssrCount,
@@ -150,13 +150,21 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
       oldestSeenId,
       oldestSeenIndex,
       get oldestIndexInViewport() {
-        return vListHandle.current?.findStartIndex() ?? IDX_NOT_FOUND;
+        return (
+          vListHandle.current?.findItemIndex(
+            vListHandle.current.scrollOffset,
+          ) ?? IDX_NOT_FOUND
+        );
       },
       get oldestIdInViewport() {
         return indexesToIds.get(this.oldestIndexInViewport);
       },
       get newestIndexInViewport() {
-        return vListHandle.current?.findEndIndex() ?? IDX_NOT_FOUND;
+        return (
+          vListHandle.current?.findItemIndex(
+            vListHandle.current.scrollOffset + vListHandle.current.viewportSize,
+          ) ?? IDX_NOT_FOUND
+        );
       },
       get newestIdInViewport() {
         return indexesToIds.get(this.newestIndexInViewport);
@@ -341,24 +349,35 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
 
   return (
     <div style={style} className={className}>
-      <VList
-        reverse={reverse}
-        ref={vListHandle}
-        style={vListStyle}
-        shift={shift}
+      <div
         className={scrollerClassName}
-        overscan={overscan}
-        keepMounted={keepMounted}
-        ssrCount={ssrCount}
-        onScroll={handleScroll}
-        onScrollEnd={onScrollEnd}
+        style={{
+          overflowY: 'auto',
+          contain: 'strict',
+          width: '100%',
+          height: '100%',
+          display: 'flex',
+          flexDirection: 'column',
+          ...vListStyle,
+        }}
         onWheel={onWheel}
         onKeyDown={onKeyDown}
       >
-        {items.map(({ id, element }) => (
-          <Fragment key={id}>{element}</Fragment>
-        ))}
-      </VList>
+        {reverse ? <div style={{ flexGrow: 1 }} /> : null}
+        <Virtualizer
+          ref={vListHandle}
+          shift={shift}
+          bufferSize={bufferSize}
+          keepMounted={keepMounted}
+          ssrCount={ssrCount}
+          onScroll={handleScroll}
+          onScrollEnd={onScrollEnd}
+        >
+          {items.map(({ id, element }) => (
+            <Fragment key={id}>{element}</Fragment>
+          ))}
+        </Virtualizer>
+      </div>
     </div>
   );
 }

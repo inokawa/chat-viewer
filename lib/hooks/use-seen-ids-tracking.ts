@@ -19,8 +19,11 @@ export function useSeenIdsTracking<M extends IdentifiableMessage>(
 
   const getViewportInfo = useCallback(() => {
     const handle = vListHandle.current;
-    const oldestIndexInViewport = handle?.findStartIndex() ?? IDX_NOT_FOUND;
-    const newestIndexInViewport = handle?.findEndIndex() ?? IDX_NOT_FOUND;
+    const oldestIndexInViewport =
+      handle?.findItemIndex(handle.scrollOffset) ?? IDX_NOT_FOUND;
+    const newestIndexInViewport =
+      handle?.findItemIndex(handle.scrollOffset + handle.viewportSize) ??
+      IDX_NOT_FOUND;
     const oldestIdInViewport = indexesToIds.get(oldestIndexInViewport);
     const newestIdInViewport = indexesToIds.get(newestIndexInViewport);
     return {

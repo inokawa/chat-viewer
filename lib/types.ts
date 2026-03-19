@@ -10,7 +10,7 @@ import type {
 import type {
   ScrollToIndexOpts as VirtuaScrollToIndexOpts,
   VListHandle,
-  VListProps,
+  VirtualizerProps,
 } from 'virtua';
 import type { PREFIX_ID, SUFFIX_ID } from './const';
 
@@ -128,18 +128,18 @@ export interface ChatViewerProps<
    */
   alignment?: ChatAlignment;
   /**
-   * Number of extra items to render beyond the visible area (for virtualization performance).
-   * Passed to Virtua's `overscan` prop.
+   * Extra item space in pixels to render beyond the visible area (for virtualization performance).
+   * Passed to Virtua's `bufferSize` prop.
    *
-   * @see https://github.com/inokawa/virtua/blob/main/docs/react/interfaces/VListProps.md#overscan
+   * @see https://github.com/inokawa/virtua/blob/main/docs/react/interfaces/VirtualizerProps.md#bufferSize
    */
-  overscan?: VListProps['overscan'];
+  bufferSize?: VirtualizerProps['bufferSize'];
   /**
    * Number of items to render on the server for SSR. Passed to Virtua's `ssrCount` prop.
    *
-   * @see https://github.com/inokawa/virtua/blob/main/docs/react/interfaces/VListProps.md#ssrcount
+   * @see https://github.com/inokawa/virtua/blob/main/docs/react/interfaces/VirtualizerProps.md#ssrcount
    */
-  ssrCount?: VListProps['ssrCount'];
+  ssrCount?: VirtualizerProps['ssrCount'];
 
   /**
    * Indexes of messages to keep mounted even when out of view.
