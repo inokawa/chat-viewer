@@ -265,6 +265,12 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
 
   const vListStyle = useMemo<CSSProperties>(
     () => ({
+      overflowY: 'auto',
+      contain: 'strict',
+      width: '100%',
+      height: '100%',
+      display: 'flex',
+      flexDirection: 'column',
       /*
       overscroll-behavior: contain is needed here to prevent scrolling
       the whole page when the user scrolls to the top or bottom of the chat.
@@ -351,15 +357,7 @@ function ChatViewerWithRef<M extends IdentifiableMessage>(
     <div style={style} className={className}>
       <div
         className={scrollerClassName}
-        style={{
-          overflowY: 'auto',
-          contain: 'strict',
-          width: '100%',
-          height: '100%',
-          display: 'flex',
-          flexDirection: 'column',
-          ...vListStyle,
-        }}
+        style={vListStyle}
         onWheel={onWheel}
         onKeyDown={onKeyDown}
       >
